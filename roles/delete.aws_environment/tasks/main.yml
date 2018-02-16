@@ -1,0 +1,5 @@
+---
+# tasks file for delete.aws_environment
+- block:
+  - ec2_vpc_igw:
+      state: absent

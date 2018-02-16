@@ -1,0 +1,145 @@
+---
+# tasks file for create.aws_environment
+- block:
+  - ec2_vpc_net:
+      cidr_block: "{{ ec2_vpc_net_cidr_block }}"
+  #   dhcp_opts_id: "{{ ec2_vpc_net_dhcp_opts_id }}"
+      dns_support: "{{ ec2_vpc_net_dns_support }}"
+      ec2_url: "{{ ec2_vpc_net_ec2_url }}"
+      multi_ok: "{{ ec2_vpc_net_multi_ok }}"
+      name: "{{ ec2_vpc_net_name }}"
+      region: "{{ ec2_vpc_net_region }}"
+      state: present
+      tags: "{{ ec2_vpc_net_tags }}"
+      tenancy: "{{ ec2_vpc_net_tenancy }}"
+      validate_certs: "{{ ec2_vpc_net_validate_certs }}"
+    register: create_ec2_vpc_net
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_net.changed == true
+  tags:
+  - create_ec2_vpc_net
+  - create_ec2_vpc_igw
+  - create_ec2_vpc_route_table
+  - create_ec2_vpc_subnet
+  - create_ec2_vpc_dhcp_options
+  - create_ec2_vpc_nat_gateway
+  - create_ec2_vpc_nacl
+
+- block:
+  - ec2_vpc_igw:
+      ec2_url: "{{ ec2_vpc_igw_ec2_url }}"
+      region: "{{ ec2_vpc_igw_region }}"
+      state: present
+      tags: "{{ ec2_vpc_igw_tags }}"
+      validate_certs: "{{ ec2_vpc_igw_validate_certs }}"
+      vpc_id: "{{ create_ec2_vpc_net.vpc.id }}"
+    register: create_ec2_vpc_igw
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_igw.changed == true
+  tags:
+  - create_ec2_vpc_igw
+
+- block:
+  - ec2_vpc_route_table:
+      ec2_url: "{{ ec2_vpc_route_table_ec2_url }}"
+      lookup: "{{ ec2_vpc_route_table_lookup }}"
+      propagating_vgw_ids: "{{ ec2_vpc_route_table_propagating_vgw_ids }}"
+      purge_routes: "{{ ec2_vpc_route_table_purge_routes }}"
+      purge_subnets: "{{ ec2_vpc_route_table_purge_subnets }}"
+      region: "{{ ec2_vpc_route_table_region }}"
+      route_table_id: "{{ ec2_vpc_route_table_route_table_id }}"
+      routes: "{{ ec2_vpc_route_table_routes }}" 
+      state: "{{ ec2_vpc_route_table_state }}"
+      subnets: "{{ ec2_vpc_route_table_subnets }}"
+      tags: "{{ ec2_vpc_route_table_tags }}"
+      validate_certs: "{{ ec2_vpc_route_table_validate_certs }}"
+    register: create_vpc_route_table
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_route_table.changed == true
+  tags:
+  - create_ec2_vpc_route_table
+
+- block:
+  - ec2_vpc_subnet:
+      az: "{{ ec2_vpc_subnet_az }}"
+      cidr: "{{ ec2_vpc_subnet_cidr }}"
+      ec2_url: "{{ ec2_vpc_subnet_ec2_url }}"
+      map_public: "{{ ec2_vpc_subnet_map_public }}"
+      region: "{{ ec2_vpc_subnet_region }}"
+      state: "{{ ec2_vpc_subnet_state }}"
+      tags: "{{ ec2_vpc_subnet_tags }}"
+      validate_certs: "{{ ec2_vpc_subnet_validate_certs }}"
+      vpc_id: "{{ create_ec2_vpc_net.results.vpc_id }}"
+    register: create_ec2_vpc_subnet
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_subnet.changed == true
+  tags:
+  - create_ec2_vpc_subnet
+  - create_ec2_vpc_nat_gateway
+
+- block:
+  - ec2_vpc_dhcp_options:
+      delete_old: "{{ ec2_vpc_dhcp_options_delete_old }}"
+#     dhcp_options_id: "{{ ec2_vpc_dhcp_options_dhcp_options_id }}"
+      dns_servers: "{{ ec2_vpc_dhcp_options_dns_servers }}"
+      domain_name: "{{ ec2_vpc_dhcp_options_domain_name }}"
+      ec2_url: "{{ ec2_vpc_dhcp_optionsec2_url }}"
+      inherit_existing: "{{ ec2_vpc_dhcp_options_inherit_existing }}"
+      netbios_name_servers: "{{ ec2_vpc_dhcp_optionsnetbios_name_servers }}"
+      netbios_node_type: "{{ ec2_vpc_dhcp_options_netbios_node_type }}"
+      ntp_servers: "{{ ec2_vpc_dhcp_options_ntp_servers }}"
+      state: "{{ ec2_vpc_dhcp_options_state }}"
+      tags: "{{ ec2_vpc_dhcp_options_tags }}"
+      validate_certs: "{{ ec2_vpc_dhcp_options_validate_certs }}"
+      vpc_id: "{{ create_ec2_vpc_net.results.vpc_id }}"
+    register: create_ec2_vpc_dhcp_options
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_dhcp_options.changed == true
+  tags:
+  - create_ec2_vpc_dhcp_options
+
+- block:
+  - ec2_vpc_nat_gateway:
+      allocation_id: "{{ ec2_vpc_nat_gateway_allocation_id }}"
+      client_token: "{{ ec2_vpc_nat_gateway_client_token }}"
+      ec2_url: "{{ ec2_vpc_nat_gateway_ec2_url }}"
+      eip_address: "{{ ec2_vpc_nat_gateway_eip_address }}"
+      if_exist_do_not_create: "{{ ec2_vpc_nat_gateway_if_exists_do_not_create }}"
+#     nat_gateway_id: "{{ ec2_vpc_nat_gateway_nat_gateway_id }}"
+      region: "{{ ec2_vpc_nat_gateway_region }}"
+      release_eip: "{{ ec2_vpc_nat_gateway_release_eip }}"
+      state: "{{ ec2_vpc_nat_gateway_state }}"
+      subnet_id: "{{ create_ec2_vpc_subnet.results.id }}"
+      validate_certs: "{{ ec2_vpc_nat_gateway_validate_certs }}"
+      wait: "{{ ec2_vpc_nat_gateway_wait }}"
+      wait_timeout: "{{ ec2_vpc_nat_gateway_wait_timeout }}"
+    register: create_ec2_vpc_nat_gateway
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_nat_gateway.changed == true
+  tags:
+  - create_ec2_vpc_nat_gateway
+
+- block:
+  - ec2_vpc_nacl:
+      ec2_url: "{{ ec2_vpc_nacl_ec2_url }}"
+      egress: "{{ ec2_vpc_nacl_egress }}"
+      ingress: "{{ ec2_vpc_nacl_ingress }}"
+#     nacl_id: "{{ ec2_vpc_nacl_nacl_id }}"
+      name: "{{ ec2_vpc_nacl_name }}"
+      state: "{{ ec2_vpc_nacl_state }}"
+      subnets: "{{ ec2_vpc_nacl_subnets }}"
+      tags: "{{ ec2_vpc_nacl_tags }}"
+      validate_certs: "{{ ec2_vpc_nacl_validate_certs }}"
+      vpc_id: "{{ create_ec2_vpc_net.results.vpc_id }}"
+    register: create_ec2_vpc_nacl
+  - debug:
+      msg: "<{{ create_ec2_vpc_net }}>"
+    when: debug == true and create_ec2_vpc_nacl.changed == true
+  tags:
+  - create_ec2_vpc_nacl

@@ -1,0 +1,4 @@
+---
+default_ami: 'ami-79873901'
+default_type: 't2.micro'
+default_region: 'us-east-1'

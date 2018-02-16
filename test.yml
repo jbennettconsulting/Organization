@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+  - debug: true
+  tasks:
+  - ec2_vpc_subnet_facts:
+      region: "{{ default_region }}"
+    register: ec2_vpc_subnet_facts
+  - debug:
+      msg: "<{{ ec2_vpc_subnet_facts }}>"
+# roles:
+# - create.aws_environment
