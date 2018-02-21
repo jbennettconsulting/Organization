@@ -1,5 +1,51 @@
 ---
-# tasks file for delete.aws_environment
+- block:
+  - ec2_vpc_net_facts:
+      region: "{{ ec2_vpc_net_region }}"
+      filters:
+        "tag:Name": "{{ ec2_vpc_net_name }}"
+    register: ec2_vpc_net_facts_result
+  - debug:
+      msg: "{{ ec2_vpc_net_facts_result }}"
+    when: debug == true
+
+#- block:
+#  - ec2_vpc_route_table:
+#      state: absent
+#      region: "<{{ ec2_vpc_route_table_region }}>"
+
+- block:
+  - ec2_vpc_subnet:
+      state: absent
+      region: "{{ ec2_vpc_subnet_region }}"
+      cidr: "{{ ec2_vpc_subnet_cidr }}"
+      vpc_id: "{{ ec2_vpc_net_facts_result.vpcs[0].id }}"
+    register: delete_ec2_vpc_subnet_result
+  - debug:
+      msg: "<{{ delete_ec2_vpc_subnet_result }}>"
+    when: debug == true and delete_ec2_vpc_subnet_result.changed == true
+
 - block:
   - ec2_vpc_igw:
       state: absent
+      region: "{{ ec2_vpc_igw_region }}"
+      vpc_id: "{{ ec2_vpc_net_facts_result.vpcs[0].id }}"
+    register: delete_ec2_vpc_igw_result
+  - debug:
+      msg: "<{{ delete_ec2_vpc_igw_result }}>"
+    when: debug == true and delete_ec2_vpc_igw_result.changed == true
+  tags:
+  - delete_ec2_vpc_igw
+
+- block:
+  - ec2_vpc_net:
+      state: absent
+      name: "{{ ec2_vpc_net_name }}"
+      cidr_block: "{{ ec2_vpc_net_cidr_block }}"
+      region: "{{ ec2_vpc_net_region }}"
+    register: delete_ec2_vpc_net_result
+  - debug: 
+      msg: "<{{ delete_ec2_vpc_net_result }}>"
+    when: debug == true and delete_ec2_vpc_net_result.changed == true
+  tags:
+  - delete_ec2_vpc_net

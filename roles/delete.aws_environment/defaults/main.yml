@@ -1,2 +1,11 @@
 ---
-# defaults file for delete.aws_environment
+ec2_vpc_net_name: default
+ec2_vpc_net_cidr_block: 10.0.0.0/16
+ec2_vpc_net_region: "{{ default_region }}"
+
+ec2_vpc_igw_region: "{{ default_region }}"
+
+ec2_vpc_igw_route_table_region: "{{ default_region }}"
+
+ec2_vpc_subnet_region: "{{ default_region }}"
+ec2_vpc_subnet_cidr: 10.0.0.0/24
